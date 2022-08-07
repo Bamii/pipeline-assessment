@@ -8,7 +8,7 @@ interface DataArrayShape {
 
 type Paging = {
   next: string;
-}
+};
 
 type DataShape = {
   id: string;
