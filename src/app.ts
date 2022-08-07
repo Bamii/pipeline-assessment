@@ -1,32 +1,60 @@
-
 interface ResponseShape {
-  results: Array<String>
+  results: Array<DataArrayShape>
 }
 
-type DataArrayShape<T,V> = {
-  [Property in keyof T]: V
+interface DataArrayShape {
+  [propName: string | number]: Array<DataShape> | Paging;
+}
+
+type Paging = {
+  next: string;
 }
 
 type DataShape = {
-
+  id: string;
+  row: number;
+  age: number;
+  gender: string;
 }
 
+type AppElement<T = Element> = T | null;
+
+interface InitTableProps {
+  table: string,
+  error: string
+}
+
+interface InitNavProps {
+  next: string,
+  page: string,
+  prev: string
+}
+
+interface Buttons {
+  prev: AppElement<HTMLButtonElement>;
+  next: AppElement<HTMLButtonElement>;
+}
+
+interface InitAppProps extends InitNavProps, InitTableProps {}
+
+
 class App {
-  #maxpage = 0;
   #page: number = 1;
-  #pageview: Element | null = null;
-  #table: Element | null = null;
-  #url = 'https://randomapi.com/api/8csrgnjw?key=LEIX-GF3O-AG7I-6J84&page=1';
+  #maxpage: number = 0;
+  #table: AppElement = null;
+  #error: AppElement = null;
+  #pageview: AppElement = null;
+  #url: string = 'https://randomapi.com/api/8csrgnjw?key=LEIX-GF3O-AG7I-6J84&page=1';
   #data = {};
-  #error: Element | null = null;
+  #buttons: Buttons = { prev: null, next: null };
 
   constructor() {}
 
-  get pagedata() { return this.#data[this.#page] }
+  get pagedata(): DataShape { return this.#data[this.#page] }
 
-  get page() { return this.#page }
+  get page(): number { return this.#page }
 
-  async initialise({ table, next, prev, page, error }) {
+  async initialise({ table, next, prev, page, error }: InitAppProps) {
     try {
       this.initialiseTable({ table, error });
       this.initialiseNavigationButtons({ next, prev, page });
@@ -37,49 +65,59 @@ class App {
     }
   }
 
-  initialiseTable({ table, error }) {
+  initialiseTable({ table, error }: InitTableProps) {
     this.#table = document.querySelector(table);
     this.#error = document.querySelector(error);
   }
 
-  initialiseNavigationButtons({ next, prev, page }) {
-    const nextBtn = document.querySelector(next);
-    const prevBtn = document.querySelector(prev);
+  initialiseNavigationButtons({ next, prev, page }: InitNavProps) {
+    const nextBtn: AppElement<HTMLButtonElement> = document.querySelector(next);
+    const prevBtn: AppElement<HTMLButtonElement> = document.querySelector(prev);
 
+    this.#buttons = { next: nextBtn, prev: prevBtn };
     this.#pageview = document.querySelector(page);
-    nextBtn.addEventListener('click', () => { this.next() })
-    prevBtn.addEventListener('click', () => { this.prev() })
+    nextBtn?.addEventListener('click', () => { this.next() })
+    prevBtn?.addEventListener('click', () => { this.prev() })
   }
 
   async fetchData() {
     try {
+      this.renderLoading(true);
       const response: Response = await fetch(this.#url)
-      const { results: [{ paging, ...results }] } = await response.json();
-  
+      const { results: [{ paging, ...results }] }: ResponseShape = await response.json();      
+      
       this.#data = { ...this.#data, ...results };
-      this.#url = paging.next;
+      this.#url = (paging as Paging).next;
       this.#maxpage += 2;
     } catch (error) {
-      throw new Error(error);
+      this.displayError(error);
+    } finally {
+      this.renderLoading(false);
     }
+  }
+
+  renderLoading(status) {
+    const action = status ? 'add' : 'remove';
+    this.#table?.classList[action]('loading');
   }
 
   render() {
     this.renderList();
     this.updatePageView();
+    this.controlPrevButton();
   }
 
   renderList() {
-    const rows = Array.from(this.#table?.getElementsByTagName('tr') || []);
-    const fields = ['row', 'gender', 'age'];
-    const data = this.pagedata;
+    const rows: Array<HTMLTableRowElement> = Array.from(this.#table?.getElementsByTagName('tr') || []);
+    const fields: Array<string> = ['row', 'gender', 'age'];
 
     rows.forEach((row, rowIndex) => {
-      const rowFields = Array.from(row.getElementsByTagName('td'))
-      const rowData = data[rowIndex];
+      const rowFields: Array<HTMLTableCellElement> = Array.from(row.getElementsByTagName('td'))
+      const rowData: DataShape = this.pagedata[rowIndex];
+      row.setAttribute('data-entryid', rowData.id)
       
       rowFields.forEach((rowField, index) => {
-        const key = fields[index];
+        const key: string = fields[index];
         rowField.textContent = rowData[key];
       });
     });
@@ -87,15 +125,30 @@ class App {
 
   updatePageView() {
     if(this.#pageview)
-      this.#pageview.textContent = `${this.#page}`;
+      this.#pageview.textContent = `Showing page ${this.#page}`;
   }
 
-  next() {
-    ++this.#page;
-    this.render();
-    
-    if(this.#page == this.#maxpage)
-      this.fetchData();
+  controlPrevButton() {
+    if(this.#buttons.prev) {
+      if(this.#page === 1)
+        this.#buttons.prev.setAttribute('disabled', '');
+      else
+        this.#buttons.prev.removeAttribute('disabled');
+    }
+  }
+
+  async next() {
+    try {
+      if(this.#page == this.#maxpage)
+        await this.fetchData();
+
+      if(this.#page < this.#maxpage)
+        ++this.#page;
+    } catch (error) {
+      this.displayError(error);      
+    } finally {
+      this.render();
+    }
   }
 
   prev() {

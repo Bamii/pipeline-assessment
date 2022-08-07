@@ -5,15 +5,21 @@ body {
 table {
     border-collapse: collapse;
     border: 1px solid black;
+    border-radius: 10px;
     text-align: center;
     vertical-align: middle;
     min-width: 65%;
     margin-bottom: 1em;
+    margin: 0 auto;
+}
+
+[data-sink].loading {
+    opacity: 50%;
 }
 
 caption {
     font-size: 24px;
-    text-align: left;
+    text-align: center;
     color: #333;
     margin-bottom: 16px;
 }
@@ -63,6 +69,12 @@ tbody tr:nth-child(even) {
     pointer-events: all;
 }
 
+.btn-group {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
 .btn-group button:not(:last-child) {
     border-right: none;
     /* Prevent double borders */
@@ -82,6 +94,7 @@ tbody tr:nth-child(even) {
 
 .btn-group button:disabled {
     pointer-events: none;
+    background-color: gray;
 }
 
 .btn-group label {
