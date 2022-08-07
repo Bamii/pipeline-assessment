@@ -125,7 +125,7 @@ class App {
 
   updatePageView() {
     if(this.#pageview)
-      this.#pageview.textContent = `Showing page ${this.#page}`;
+      this.#pageview.textContent = `Showing Page ${this.#page}`;
   }
 
   controlPrevButton() {
