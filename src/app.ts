@@ -1,5 +1,5 @@
 interface ResponseShape {
-  results: Array<DataArrayShape>
+  results: Array<DataArrayShape>;
 }
 
 interface DataArrayShape {
@@ -20,14 +20,14 @@ type DataShape = {
 type AppElement<T = Element> = T | null;
 
 interface InitTableProps {
-  table: string,
-  error: string
+  table: string;
+  error: string;
 }
 
 interface InitNavProps {
-  next: string,
-  page: string,
-  prev: string
+  next: string;
+  page: string;
+  prev: string;
 }
 
 interface Buttons {
@@ -76,7 +76,7 @@ class App {
 
     this.#buttons = { next: nextBtn, prev: prevBtn };
     this.#pageview = document.querySelector(page);
-    nextBtn?.addEventListener('click', () => { this.next() })
+    nextBtn?.addEventListener('click', async () => { await this.next() })
     prevBtn?.addEventListener('click', () => { this.prev() })
   }
 
@@ -114,6 +114,8 @@ class App {
     rows.forEach((row, rowIndex) => {
       const rowFields: Array<HTMLTableCellElement> = Array.from(row.getElementsByTagName('td'))
       const rowData: DataShape = this.pagedata[rowIndex];
+      // console.log(rowData)
+      // console.log()
       row.setAttribute('data-entryid', rowData.id)
       
       rowFields.forEach((rowField, index) => {
@@ -143,7 +145,7 @@ class App {
         await this.fetchData();
 
       if(this.#page < this.#maxpage)
-        ++this.#page;
+        ++this.#page;        
     } catch (error) {
       this.displayError(error);      
     } finally {
