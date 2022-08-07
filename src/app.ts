@@ -44,7 +44,7 @@ class App {
   #table: AppElement = null;
   #error: AppElement = null;
   #pageview: AppElement = null;
-  #url: string = 'https://randomapi.com/api/8csrgnjw?key=LEIX-GF3O-AG7I-6J84&page=1';
+  #url: string = "https://randomapi.com/api/8csrgnjw?key=LEIX-GF3O-AG7I-6J84&page=1";
   #data = {};
   #buttons: Buttons = { prev: null, next: null };
 
@@ -76,8 +76,8 @@ class App {
 
     this.#buttons = { next: nextBtn, prev: prevBtn };
     this.#pageview = document.querySelector(page);
-    nextBtn?.addEventListener('click', async () => { await this.next() })
-    prevBtn?.addEventListener('click', () => { this.prev() })
+    nextBtn?.addEventListener("click", async () => { await this.next() })
+    prevBtn?.addEventListener("click", () => { this.prev() })
   }
 
   async fetchData() {
@@ -97,8 +97,9 @@ class App {
   }
 
   renderLoading(status) {
-    const action = status ? 'add' : 'remove';
-    this.#table?.classList[action]('loading');
+    const action = status ? "add" : "remove";
+    this.#table?.classList[action]("loading");
+    this.controlNextButton(status)
   }
 
   render() {
@@ -108,15 +109,15 @@ class App {
   }
 
   renderList() {
-    const rows: Array<HTMLTableRowElement> = Array.from(this.#table?.getElementsByTagName('tr') || []);
-    const fields: Array<string> = ['row', 'gender', 'age'];
+    const rows: Array<HTMLTableRowElement> = Array.from(this.#table?.getElementsByTagName("tr") || []);
+    const fields: Array<string> = ["row", "gender", "age"];
 
     rows.forEach((row, rowIndex) => {
-      const rowFields: Array<HTMLTableCellElement> = Array.from(row.getElementsByTagName('td'))
+      const rowFields: Array<HTMLTableCellElement> = Array.from(row.getElementsByTagName("td"))
       const rowData: DataShape = this.pagedata[rowIndex];
       // console.log(rowData)
       // console.log()
-      row.setAttribute('data-entryid', rowData.id)
+      row.setAttribute("data-entryid", rowData.id)
       
       rowFields.forEach((rowField, index) => {
         const key: string = fields[index];
@@ -133,9 +134,19 @@ class App {
   controlPrevButton() {
     if(this.#buttons.prev) {
       if(this.#page === 1)
-        this.#buttons.prev.setAttribute('disabled', '');
+        this.#buttons.prev.setAttribute("disabled", "");
       else
-        this.#buttons.prev.removeAttribute('disabled');
+        this.#buttons.prev.removeAttribute("disabled");
+    }
+  }
+
+  controlNextButton(status) {
+    if(this.#buttons.next) {
+      if(status) { 
+        this.#buttons.next.setAttribute('disabled', '')
+      } else {
+        this.#buttons.next.removeAttribute('disabled')
+      }
     }
   }
 
@@ -171,12 +182,12 @@ const startApp = async () => {
   const app = new App();
 
   app.initialise({
-    table: '[data-sink]',
-    error: '[data-error]',
-    next: '[data-nextbtn]',
-    prev: '[data-prevbtn]',
-    page: '[data-pageview]'
+    table: "[data-sink]",
+    error: "[data-error]",
+    next: "[data-nextbtn]",
+    prev: "[data-prevbtn]",
+    page: "[data-pageview]"
   });
 };
 
-document.addEventListener('DOMContentLoaded', startApp);
+document.addEventListener("DOMContentLoaded", startApp);
