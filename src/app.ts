@@ -115,8 +115,6 @@ class App {
     rows.forEach((row, rowIndex) => {
       const rowFields: Array<HTMLTableCellElement> = Array.from(row.getElementsByTagName("td"))
       const rowData: DataShape = this.pagedata[rowIndex];
-      // console.log(rowData)
-      // console.log()
       row.setAttribute("data-entryid", rowData.id)
       
       rowFields.forEach((rowField, index) => {
@@ -143,17 +141,16 @@ class App {
   controlNextButton(status) {
     if(this.#buttons.next) {
       if(status) { 
-        this.#buttons.next.setAttribute('disabled', '')
+        this.#buttons.next.setAttribute("disabled", "")
       } else {
-        this.#buttons.next.removeAttribute('disabled')
+        this.#buttons.next.removeAttribute("disabled")
       }
     }
   }
 
   async next() {
     try {
-      if(this.#page == this.#maxpage)
-        await this.fetchData();
+      if(this.#page == this.#maxpage) await this.fetchData();
 
       if(this.#page < this.#maxpage)
         ++this.#page;        
@@ -165,16 +162,14 @@ class App {
   }
 
   prev() {
-    if(this.#page === 1)
-      return;
+    if(this.#page === 1) return;
 
     --this.#page;
     this.render();
   }
 
   displayError(error) {
-    if(this.#error)
-      this.#error.textContent = error.message;
+    if(this.#error) this.#error.textContent = error.message;
   }
 }
 
