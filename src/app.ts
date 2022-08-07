@@ -99,7 +99,7 @@ class App {
   renderLoading(status) {
     const action = status ? "add" : "remove";
     this.#table?.classList[action]("loading");
-    this.controlNextButton(status)
+    this.controlNextButton(status);
   }
 
   render() {

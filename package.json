@@ -2,7 +2,7 @@
     "source": "src/index.html",
     "scripts": {
         "start": "parcel",
-        "build": "parcel build"
+        "build-netlify": "parcel build"
     },
     "browserslist": "> 0.5%, last 2 versions, not dead",
     "devDependencies": {
