@@ -1,3 +1,4 @@
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/741c2a39668040ed801603abc19a7412)](https://www.codacy.com/gh/Bamii/pipeline-assessment/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Bamii/pipeline-assessment&amp;utm_campaign=Badge_Grade)
 # Frontend Assessment
 
 Build and deploy a very simple frontend app for paginated data, that does the following
