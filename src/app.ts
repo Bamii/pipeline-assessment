@@ -18,6 +18,7 @@ class App {
   #table: Element | null = null;
   #url = 'https://randomapi.com/api/8csrgnjw?key=LEIX-GF3O-AG7I-6J84&page=1';
   #data = {};
+  #error: Element | null = null;
 
   constructor() {}
 
@@ -25,20 +26,20 @@ class App {
 
   get page() { return this.#page }
 
-  async initialise({ table, next, prev, page }) {
+  async initialise({ table, next, prev, page, error }) {
     try {
-      this.initialiseTable({ table });
+      this.initialiseTable({ table, error });
       this.initialiseNavigationButtons({ next, prev, page });
       await this.fetchData();
       this.render();
     } catch (error) {
-
-      throw new Error(error);
+      this.displayError(error)
     }
   }
 
-  initialiseTable({ table }) {
+  initialiseTable({ table, error }) {
     this.#table = document.querySelector(table);
+    this.#error = document.querySelector(error);
   }
 
   initialiseNavigationButtons({ next, prev, page }) {
@@ -72,7 +73,6 @@ class App {
     const rows = Array.from(this.#table?.getElementsByTagName('tr') || []);
     const fields = ['row', 'gender', 'age'];
     const data = this.pagedata;
-    console.log('test', rows, data)
 
     rows.forEach((row, rowIndex) => {
       const rowFields = Array.from(row.getElementsByTagName('td'))
@@ -106,12 +106,9 @@ class App {
     this.render();
   }
 
-  displayError() {
-    
-  }
-
-  actions() {
-    return { next: this.next, prev: this.prev }
+  displayError(error) {
+    if(this.#error)
+      this.#error.textContent = error.message;
   }
 }
 
@@ -120,6 +117,7 @@ const startApp = async () => {
 
   app.initialise({
     table: '[data-sink]',
+    error: '[data-error]',
     next: '[data-nextbtn]',
     prev: '[data-prevbtn]',
     page: '[data-pageview]'
