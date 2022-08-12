@@ -35,6 +35,11 @@ interface Buttons {
   next: AppElement<HTMLButtonElement>;
 }
 
+enum AppStatus {
+  Loading,
+  Default
+}
+
 interface InitAppProps extends InitNavProps, InitTableProps {}
 
 
@@ -47,12 +52,17 @@ class App {
   #url: string = "https://randomapi.com/api/8csrgnjw?key=LEIX-GF3O-AG7I-6J84&page=1";
   #data = {};
   #buttons: Buttons = { prev: null, next: null };
+  #status: AppStatus = AppStatus.Default; // default || loading
 
   constructor() {}
 
-  get pagedata(): DataShape { return this.#data[this.#page] }
+  get pagedata(): DataShape {
+    return this.#data[this.#page]
+  }
 
-  get page(): number { return this.#page }
+  get page(): number {
+    return this.#page
+  }
 
   async initialise({ table, next, prev, page, error }: InitAppProps) {
     try {
@@ -61,7 +71,7 @@ class App {
       await this.fetchData();
       this.render();
     } catch (error) {
-      this.displayError(error)
+      this.displayError(error);
     }
   }
 
@@ -83,6 +93,7 @@ class App {
   async fetchData() {
     try {
       this.renderLoading(true);
+      this.clearError();
       const response: Response = await fetch(this.#url)
       const { results: [{ paging, ...results }] }: ResponseShape = await response.json();      
       
@@ -96,24 +107,26 @@ class App {
     }
   }
 
-  renderLoading(status) {
-    const action = status ? "add" : "remove";
+  renderLoading(loading) {
+    this.#status = loading ? AppStatus.Loading : AppStatus.Default;
+    const action = loading ? "add" : "remove";
     this.#table?.classList[action]("loading");
-    this.controlNextButton(status);
+    this.controlNextButton();
   }
 
   render() {
     this.renderList();
     this.updatePageView();
     this.controlPrevButton();
+    this.controlNextButton();
   }
 
   renderList() {
-    const rows: Array<HTMLTableRowElement> = Array.from(this.#table?.getElementsByTagName("tr") || []);
+    const rows: Array<HTMLTableRowElement> = [...(this.#table?.getElementsByTagName("tr") || [])];
     const fields: Array<string> = ["row", "gender", "age"];
 
     rows.forEach((row, rowIndex) => {
-      const rowFields: Array<HTMLTableCellElement> = Array.from(row.getElementsByTagName("td"))
+      const rowFields: Array<HTMLTableCellElement> = [...(row.getElementsByTagName("td"))]
       const rowData: DataShape = this.pagedata[rowIndex];
       row.setAttribute("data-entryid", rowData.id)
       
@@ -138,9 +151,9 @@ class App {
     }
   }
 
-  controlNextButton(status) {
+  controlNextButton() {
     if(this.#buttons.next) {
-      if(status) { 
+      if(this.#status === AppStatus.Loading) { 
         this.#buttons.next.setAttribute("disabled", "")
       } else {
         this.#buttons.next.removeAttribute("disabled")
@@ -150,7 +163,8 @@ class App {
 
   async next() {
     try {
-      if(this.#page == this.#maxpage) await this.fetchData();
+      if(this.#page == this.#maxpage)
+        await this.fetchData();
 
       if(this.#page < this.#maxpage)
         ++this.#page;        
@@ -169,7 +183,19 @@ class App {
   }
 
   displayError(error) {
-    if(this.#error) this.#error.textContent = error.message;
+    if(this.#error) {
+      const container = this.#error;
+      container.textContent = error.message;
+
+      setTimeout(function() {
+        this.clearError();
+      }, 10000);
+    };
+  }
+
+  clearError() {
+    if(this.#error)
+      this.#error.textContent = '';
   }
 }
 
